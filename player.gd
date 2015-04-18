@@ -5,16 +5,12 @@ var max_vel = 10
 var mouse_sensitivity = 0.2
 var yaw = 0
 
-
-func _process(delta):
+func _fixed_process(delta):
 	_keyboardInput(delta)
 
 func _ready():
-	set_process(true)
 	set_process_input(true)
 	set_fixed_process(true)
-
-
 
 func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)
@@ -28,11 +24,11 @@ func _keyboardInput(delta):
 		dir += -player_xform.basis[0] 
 	elif Input.is_action_pressed("strafe_right"):
 		dir += player_xform.basis[0]
-	
+
 	dir.y = 0
 	dir = dir.normalized()
 	if dir.length() != 0:
-		translate(dir * delta * max_vel)
+		move(dir * delta * max_vel)
 
 func _input(event):
 	_mouseLook(event)
