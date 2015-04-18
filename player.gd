@@ -4,12 +4,12 @@ var max_vel = 10
 
 var mouse_sensitivity = 0.2
 var yaw = 0
+#var pitch = 0
 
 var g = -19.8
 var vel = Vector3()
 const MAX_SPEED = 8
 const JUMP_SPEED = 7
-#var pitch = 0
 const MAX_SLOPE_ANGLE = 30
 const ACCEL= 6
 const DEACCEL= 10
@@ -68,23 +68,28 @@ func _keyboardInput(delta):
 
 	var attempts=4
 
-	while(is_colliding() and attempts):
-		var n=get_collision_normal()
-
-		if ( rad2deg(acos(n.dot( Vector3(0,1,0)))) < MAX_SLOPE_ANGLE ):
-				#if angle to the "up" vectors is < angle tolerance
-				#char is on floor
-				floor_velocity=get_collider_velocity()
-				on_floor=true			
-			
-		motion = n.slide(motion)
-		vel = n.slide(vel)
-		if (original_vel.dot(vel) > 0):
-			#do not allow to slide towads the opposite direction we were coming from
-			motion=move(motion)
-			if (motion.length()<0.001):
-				break
-		attempts-=1
+	if is_colliding():
+		var node = get_collider()
+		if node != null and "bullets" in node.get_groups():
+			node.player_collision()
+		else:
+			while(is_colliding() and attempts):
+				var n=get_collision_normal()
+		
+				if ( rad2deg(acos(n.dot( Vector3(0,1,0)))) < MAX_SLOPE_ANGLE ):
+						#if angle to the "up" vectors is < angle tolerance
+						#char is on floor
+						floor_velocity=get_collider_velocity()
+						on_floor=true			
+					
+				motion = n.slide(motion)
+				vel = n.slide(vel)
+				if (original_vel.dot(vel) > 0):
+					#do not allow to slide towads the opposite direction we were coming from
+					motion=move(motion)
+					if (motion.length()<0.001):
+						break
+				attempts-=1
 	
 	if (on_floor and floor_velocity!=Vector3()):
 		move(floor_velocity*delta)
