@@ -11,6 +11,9 @@ func _fixed_process(delta):
 	_keyboardInput(delta)
 
 func _ready():
+	var b = get_global_transform().basis[2]
+	yaw = 90 - rad2deg(atan2(b.z, b.x))
+	
 	set_process_input(true)
 	set_fixed_process(true)
 
