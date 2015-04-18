@@ -7,15 +7,12 @@ var yaw = 0
 #var pitch = 0
 const MAX_SLOPE_ANGLE = 30
 
-
 func _fixed_process(delta):
 	_keyboardInput(delta)
 
 func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
-
-
 
 func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)
@@ -29,7 +26,7 @@ func _keyboardInput(delta):
 		dir += -player_xform.basis[0] 
 	elif Input.is_action_pressed("strafe_right"):
 		dir += player_xform.basis[0]
-	
+
 	dir.y = 0
 	dir = dir.normalized()
 	if dir.length() != 0:
