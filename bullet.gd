@@ -3,7 +3,7 @@ extends KinematicBody
 var precision = 0.01
 var player = null
 
-var speed = 16
+var speed = 20
 
 func _fixed_process(delta):
 
