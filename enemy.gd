@@ -1,4 +1,4 @@
-extends Node
+extends Spatial
 
 var bullet_prefab = null
 
@@ -10,8 +10,9 @@ func _on_Timer_timeout():
 	bullet.set_name("Bullet")
 	add_child(bullet)
 	
-	#var target = get_node("Target")
-	#var dir = target.get_translation() - bullet.get_translation()
+	var target = get_node("Target")
 	
+	var scale = bullet.get_scale()
+	bullet.look_at(target.get_global_transform().origin, Vector3(0,1,0))
 	bullet.rotate(Vector3(0,1,0), deg2rad(180))
-	
+	bullet.set_scale(scale)

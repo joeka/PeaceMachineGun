@@ -3,6 +3,8 @@ extends KinematicBody
 var precision = 0.01
 var player = null
 
+var speed = 16
+
 func _fixed_process(delta):
 
 	if is_colliding():
@@ -12,6 +14,8 @@ func _fixed_process(delta):
 		else:
 			print("bullet lost") #TODO: do something else
 			queue_free()
+	else:
+		move(get_global_transform().basis[2] * delta * speed)
 
 func player_collision():
 	var b1 = get_global_transform().basis[2]
