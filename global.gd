@@ -1,8 +1,9 @@
 extends Node
 
 var _current_scene = null
-var _current_scene_id = 0
+var _current_level_id = -1
 var _current_path = null
+var _showing_level_screen = false
 
 var _replay_first = []
 var _replay_events = []
@@ -10,13 +11,19 @@ var _replay = false
 
 var _time = 0
 
-var _scenes = [
-		"res://title.scn",
-		"res://levels/testlevel.scn"]
+var _levels = [
+		"res://levels/testlevel.scn"
+		]
+var _level_screen = "res://level.scn"
+var _game_over_screen = "res://gameover.scn"
+var _credits_screen = "res://credits.scn"
 
 func reset_replay():
 	_replay_events = []
 	_time = 0
+	
+func get_current_level():
+	return _current_level_id
 
 func replay():
 	_replay = true
@@ -72,9 +79,18 @@ func goto_scene( path ):
 	call_deferred( "_deferred_goto_scene", path )
 
 func next_scene():
-	var id = _current_scene_id + 1
-	if _scenes.size() > id:
-		goto_scene(_scenes[id])
+	if _showing_level_screen:
+		_showing_level_screen = false
+		goto_scene(_levels[_current_level_id])
+	elif _current_level_id == _levels.size() - 1:
+		_current_level_id += 1
+		goto_scene(_game_over_screen)
+	elif _current_level_id == _levels.size():
+		goto_scene(_credits_screen)
+	else:
+		_current_level_id += 1
+		_showing_level_screen = true
+		goto_scene(_level_screen)
 
 func _deferred_goto_scene( path ):
 	_current_scene.free()
