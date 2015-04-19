@@ -139,7 +139,7 @@ func _input(event):
 	_mouseLook(event)
 
 func _mouseLook(event):
-	if event.type == InputEvent.MOUSE_MOTION or event.type == InputEvent.SCREEN_DRAG:
+	if not _replay and (event.type == InputEvent.MOUSE_MOTION or event.type == InputEvent.SCREEN_DRAG):
 		yaw = fmod(yaw - event.relative_x * mouse_sensitivity, 360)
 		#pitch = fmod(pitch - event.relative_y * mouse_sensitivity, 360)
 		set_rotation(Vector3(0, deg2rad(yaw) , 0))
