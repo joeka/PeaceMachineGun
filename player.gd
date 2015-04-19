@@ -95,17 +95,17 @@ func _keyboardInput(delta):
 	
 	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
 		is_running = true
-		get_node("Spatial/AnimationPlayer").play("Running-cycle")
+		get_node("AnimationPlayer").play("Running-cycle")
 		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Running-cycle"} ) 
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
 
 	if (is_running):
-		get_node("Spatial/AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
+		get_node("AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
 		_animation_record.push_back( {"time": _time, "action": "set_speed", "speed": vel.length()/MAX_SPEED} )
 	else:
-		get_node("Spatial/AnimationPlayer").play("Standing")
+		get_node("AnimationPlayer").play("Standing")
 		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Standing"} )
 		
 	var motion = vel*delta
@@ -148,7 +148,7 @@ func _keyboardInput(delta):
 		vel.y=JUMP_SPEED
 
 func updateGunPosition ():
-	var skeleton = get_node("Spatial/Armature/Skeleton")
+	var skeleton = get_node("Armature/Skeleton")
 	var right_hand_bone_id = skeleton.find_bone("Hand_R")
 	var right_hand_transform = skeleton.get_bone_global_pose (right_hand_bone_id)
 	get_node("GunMesh").set_transform(right_hand_transform.rotated(Vector3(0.0, 0.0, 0.0), 180))
