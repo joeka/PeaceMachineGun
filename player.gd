@@ -20,6 +20,11 @@ var _replay = false
 var _animation_record = []
 var _record = []
 
+func _record_animation_state():
+	pass
+func _record_animation_speed():
+	pass
+
 func _fixed_process(delta):
 	if _replay:
 		_time -= delta
@@ -95,18 +100,18 @@ func _keyboardInput(delta):
 	
 	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
 		is_running = true
+		_record_animation_state()
 		get_node("AnimationPlayer").play("Running-cycle")
-		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Running-cycle"} ) 
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
 
 	if (is_running):
+		_record_animation_speed()
 		get_node("AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
-		_animation_record.push_back( {"time": _time, "action": "set_speed", "speed": vel.length()/MAX_SPEED} )
 	else:
+		_record_animation_state()
 		get_node("AnimationPlayer").play("Standing")
-		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Standing"} )
 		
 	var motion = vel*delta
 	motion=move(vel*delta)
