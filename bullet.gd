@@ -25,7 +25,7 @@ func _fixed_process(delta):
 			player_collision()
 		else:
 			print("bullet lost") #TODO: do something else
-			queue_free()
+			_destroy()
 	move(get_global_transform().basis[2] * delta * speed)
 
 func player_collision():
@@ -36,6 +36,10 @@ func player_collision():
 		print("bullet caught")  #TODO: do something else
 	else:
 		print("hit by bullet")  #TODO: do something else
+	_destroy()
+func _destroy():
+	if trajectory != null:
+		trajectory.queue_free()
 	queue_free()
 
 func _ready():
@@ -51,4 +55,4 @@ func _ready():
 
 
 func _on_FreeTimer_timeout():
-	queue_free()
+	_destroy()
