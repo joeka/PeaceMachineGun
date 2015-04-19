@@ -12,6 +12,8 @@ export(int) var MAX_SLOPE_ANGLE = 30
 export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
 var is_running = false
+#var target_animation = Animation()
+var target_track_id = 0
 
 var _time = 0
 var _replay = false
@@ -30,8 +32,20 @@ func _fixed_process(delta):
 		_time += delta
 		_keyboardInput(delta)
 		_record.push_back({ "time": _time, "transform": get_transform() })
-	
+
+	updateTargetAnimation(Transform())
 	updateGunPosition()
+	
+func initTargetAnimation():
+#	target_animation = Animation()
+#	var target_track_id = target_animation.add_track (TYPE_TRANSFORM)
+	#target_animation.track_set_path (target_track_id, "Spatial/Armature/Skeleton:UpperArm_R")
+
+	pass
+
+func updateTargetAnimation(transform):
+	#target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
+	pass
 
 func replay():
 	_replay = true
