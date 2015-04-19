@@ -13,10 +13,29 @@ export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
 var is_running = false
 
+var _time = 0
+var _replay = false
+var _record = []
+
 func _fixed_process(delta):
-	_keyboardInput(delta)
+	if _replay:
+		_time -= delta
+		while _record.size() > 0 and _record[_record.size() - 1]["time"] > _time:
+			set_transform(_record[_record.size() - 1]["transform"])
+			_record.remove(_record.size() - 1)
+		if _time <= 0:
+			_replay = false
+			print("player replay finished") #TODO do something. End event?
+	else:
+		_time += delta
+		_keyboardInput(delta)
+		_record.push_back({ "time": _time, "transform": get_transform() })
+
+func replay():
+	_replay = true
 
 func _ready():
+	get_node("/root/global").register_replay(self, "player")
 	var b = get_global_transform().basis[2]
 	yaw = 90 - rad2deg(atan2(b.z, b.x))
 	
@@ -80,7 +99,7 @@ func _keyboardInput(delta):
 
 	if is_colliding():
 		var node = get_collider()
-		if node != null and "bullets" in node.get_groups():
+		if node.get_name() == "Bullet":
 			node.player_collision()
 		else:
 			while(is_colliding() and attempts):
@@ -90,7 +109,7 @@ func _keyboardInput(delta):
 						#if angle to the "up" vectors is < angle tolerance
 						#char is on floor
 						floor_velocity=get_collider_velocity()
-						on_floor=true			
+						on_floor=true
 					
 				motion = n.slide(motion)
 				vel = n.slide(vel)
