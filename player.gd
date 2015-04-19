@@ -12,8 +12,8 @@ export(int) var MAX_SLOPE_ANGLE = 30
 export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
 var is_running = false
-var target_animation = Animation.new()
-var target_track_id = 0
+var targeting_animation
+var targeting_track_id = 0
 
 var _time = 0
 var _replay = false
@@ -42,30 +42,24 @@ func poseUpperArm():
 	
 func initTargetAnimation():
 	# remove old animation of player
-	if get_node("AnimationPlayer").has_animation("Targeting"):
-		get_node("AnimationPlayer").remove_animation("Targeting")
+	assert (get_node("AnimationPlayer").has_animation("Targeting"))
+	targeting_animation = get_node("AnimationPlayer").get_animation("Targeting")
+	var track_count = targeting_animation.get_track_count()
+	print (targeting_animation.get_track_count())
 	
-	target_animation = Animation.new()
-	target_animation.set_name("Targeting")
-	assert (target_animation.get_track_count() == 0)
-	print (target_animation)
-	target_track_id = target_animation.add_track (Animation.TYPE_TRANSFORM)
-
-	#	assert (target_animation.get_track_count() == 1)
-	target_animation.track_set_path (target_track_id, "Armature/Skeleton:UpperArm_R")
-	print ("bone id = ", get_node("Armature/Skeleton").find_bone("UpperArm_R"))
-	assert (get_node("Armature/Skeleton").find_bone("UpperArm_R") > 0)
 	
-	print (target_animation.track_get_type(target_track_id))
-	get_node("AnimationPlayer").add_animation("Targeting", target_animation)
-	print (get_node("AnimationPlayer").has_animation("Targeting"))
+	#assert (targeting_animation.get_track_count() == 1)
+	print (targeting_animation.track_get_path(1))
 
 	pass
 
 func updateTargetAnimation(transform):
-	var res = target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(1.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
-	print ("insert result = ", res, " ")
+	#var res = target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(1.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
 	
+	#print ("insert result = ", res, " ")
+	pass
+
+func findClosestBullet():
 	pass
 
 func replay():
@@ -117,16 +111,15 @@ func _keyboardInput(delta):
 	
 	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
 		is_running = true
-		get_node("AnimationPlayer").play("Running-cycle")
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
-
-	if (is_running):
-		get_node("AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
-	else:
-		get_node("AnimationPlayer").play("Standing")
 		
+	if (is_running):
+		get_node("AnimationTreePlayer").blend2_node_set_amount("run",max(vel.length()/MAX_SPEED,1.0))
+	else:
+		get_node("AnimationTreePlayer").blend2_node_set_amount("run",0.0)
+	
 	#get_node("AnimationPlayer").stop_all()
 	#get_node("AnimationPlayer").play("Targeting")
 		
