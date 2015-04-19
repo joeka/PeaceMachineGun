@@ -11,12 +11,13 @@ export(int) var JUMP_SPEED = 7
 export(int) var MAX_SLOPE_ANGLE = 30
 export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
-const TARGET_OUTER_RADIUS = 4.0
-const TARGET_INNER_RADIUS = 3.0
+const TARGET_OUTER_RADIUS = 6.0
+const TARGET_INNER_RADIUS = 4.0
 
 var is_running = false
 var targeting_animation
 var targeting_track_id = 0
+var targeting_parent_matrices
 
 var _time = 0
 var _replay = false
@@ -59,9 +60,20 @@ func initTargetAnimation():
 	for i in range (track_count):
 		if targeting_animation.track_get_path(i).get_property() == "UpperArm_R":
 			targeting_track_id = i
+			targeting_animation.track_set_interpolation_type (targeting_track_id, Animation.INTERPOLATION_NEAREST)
 			break
 			
 	assert (targeting_track_id >= 0)
+
+	# compute the parent matrices that are used when orienting the arm
+	var skeleton = get_node("Armature/Skeleton")
+	var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
+	var bone_id = right_shoulder_bone_id
+	targeting_parent_matrices = Matrix3(Vector3(1.0, 0.0, 0.0), 0.0)
+	while bone_id != 0:
+		var rest_orientation = skeleton.get_bone_rest (bone_id).basis
+		targeting_parent_matrices = rest_orientation * targeting_parent_matrices
+		bone_id = skeleton.get_bone_parent(bone_id)
 
 	pass
 
@@ -72,18 +84,29 @@ func updateTargetAnimation(transform):
 	var skeleton = get_node("Armature/Skeleton")
 	var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
 	var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+	var right_shoulder_bone_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
 	
 	var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
+
+	var player_orientation = get_global_transform().basis
+	var player_position = get_global_transform().origin
+
+	var direction = (shoulder_location - bullet_location).normalized()
+#	
+	var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
+	var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
+#	print ("atan: ", target_orientation, " direction = ", direction.normalized())
 	
-	var orientation = Quat(Transform().looking_at (bullet_location - shoulder_location, Vector3 (0.0, 1.0, 0.0)).basis)
-#	print (orientation)
-#	orientation = Quat()
-	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(1.0, 1.0, 1.0), orientation, Vector3 (1.0, 1.0, 1.0))
-#	targeting_animation.transform_track_insert_key (targeting_track_id, 0.001, Vector3(1.0, 1.0, 1.0), orientation, Vector3 (1.0, 1.0, 1.0))
-#	print (targeting_animation.track_get_key_count(targeting_track_id))
-#
+	var up = Vector3 (0.0, 1.0, 0.0)
+	var side = up.cross(-direction)
+	target_orientation = Matrix3(side, up, -direction)
+#	print ("new:  ", target_orientation, " direction = ", direction.normalized())
+	
+	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
+	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
+
+	# compute weighting of the targeting
 	var distance = (bullet_location - shoulder_location).length()
-	
 	var targeting_weighting = 0.0
 	if distance < TARGET_OUTER_RADIUS:
 		if distance < TARGET_INNER_RADIUS:
@@ -91,9 +114,15 @@ func updateTargetAnimation(transform):
 		else:
 			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
 
-	print ("distance = ", distance, " weighting = ", targeting_weighting)
+	#print ("distance = ", distance, " weighting = ", targeting_weighting)
+
+	# disabling the following two lines properly shows the updated pose
+#	get_node("AnimationTreePlayer").set_active(false)
+#	get_node("AnimationPlayer").play("Targeting")
+
 	get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
-	
+	get_node("AnimationTreePlayer").reset()	
+	get_node("AnimationTreePlayer").recompute_caches()	
 	pass
 
 func findClosestBulletLocation():
@@ -110,6 +139,8 @@ func _ready():
 	
 	set_process_input(true)
 	set_fixed_process(true)
+	
+#	get_node("AnimationTreePlayer").set_active(false)
 	
 	initTargetAnimation()
 
