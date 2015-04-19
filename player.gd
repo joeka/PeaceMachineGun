@@ -15,9 +15,11 @@ var is_running = false
 
 func _fixed_process(delta):
 	_keyboardInput(delta)
+	updateGunPosition()
 
 func _ready():
 	var b = get_global_transform().basis[2]
+	
 	yaw = 90 - rad2deg(atan2(b.z, b.x))
 	
 	set_process_input(true)
@@ -27,14 +29,14 @@ func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)
 	var player_xform = get_global_transform()
 	if Input.is_action_pressed("forward"):
-		dir += -player_xform.basis[2]
-	elif Input.is_action_pressed("backward"):
 		dir += player_xform.basis[2]
+	elif Input.is_action_pressed("backward"):
+		dir += -player_xform.basis[2]
 	
 	if Input.is_action_pressed("strafe_left"):
-		dir += -player_xform.basis[0] 
+		dir += player_xform.basis[0] 
 	elif Input.is_action_pressed("strafe_right"):
-		dir += player_xform.basis[0]
+		dir += -player_xform.basis[0]
 
 	dir.y = 0
 	dir = dir.normalized()
@@ -62,17 +64,17 @@ func _keyboardInput(delta):
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
-		get_node("Spatial/AnimationPlayer").play("Standing")
 
 	if (is_running):
 		get_node("Spatial/AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
+	else:
+		get_node("Spatial/AnimationPlayer").play("Standing")
 		
 	var motion = vel*delta
 	motion=move(vel*delta)
 
 	var on_floor = false
 	var original_vel = vel
-
 
 	var floor_velocity=Vector3()
 
@@ -107,6 +109,12 @@ func _keyboardInput(delta):
 	if (on_floor and Input.is_action_pressed("jump")):
 		vel.y=JUMP_SPEED
 
+func updateGunPosition ():
+	var skeleton = get_node("Spatial/Armature/Skeleton")
+	var right_hand_bone_id = skeleton.find_bone("Hand_R")
+	var right_hand_transform = skeleton.get_bone_global_pose (right_hand_bone_id)
+	get_node("GunMesh").set_transform(right_hand_transform.rotated(Vector3(0.0, 0.0, 0.0), 180))
+
 func _input(event):
 	_mouseLook(event)
 
@@ -114,7 +122,7 @@ func _mouseLook(event):
 	if event.type == InputEvent.MOUSE_MOTION or event.type == InputEvent.SCREEN_DRAG:
 		yaw = fmod(yaw - event.relative_x * mouse_sensitivity, 360)
 		#pitch = fmod(pitch - event.relative_y * mouse_sensitivity, 360)
-		set_rotation(Vector3(0, deg2rad(yaw), 0))
+		set_rotation(Vector3(0, deg2rad(yaw) , 0))
 		#get_node("CameraConnector").set_rotation(Vector3(deg2rad(pitch), 0, 0))
 
 func _enter_tree():
