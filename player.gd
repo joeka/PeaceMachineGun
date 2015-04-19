@@ -12,7 +12,7 @@ export(int) var MAX_SLOPE_ANGLE = 30
 export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
 var is_running = false
-#var target_animation = Animation()
+var target_animation = Animation.new()
 var target_track_id = 0
 
 var _time = 0
@@ -36,15 +36,36 @@ func _fixed_process(delta):
 	updateTargetAnimation(Transform())
 	updateGunPosition()
 	
+func poseUpperArm():
+	var upper_arm_bone_id = get_node("Armature/Skeleton").find_bone("UpperArm_R")
+	#get_node("Armature/Skeleton").set_bone_global_pose (upper_arm_bone_id, Transform (
+	
 func initTargetAnimation():
-#	target_animation = Animation()
-#	var target_track_id = target_animation.add_track (TYPE_TRANSFORM)
-	#target_animation.track_set_path (target_track_id, "Spatial/Armature/Skeleton:UpperArm_R")
+	# remove old animation of player
+	if get_node("AnimationPlayer").has_animation("Targeting"):
+		get_node("AnimationPlayer").remove_animation("Targeting")
+	
+	target_animation = Animation.new()
+	target_animation.set_name("Targeting")
+	assert (target_animation.get_track_count() == 0)
+	print (target_animation)
+	target_track_id = target_animation.add_track (Animation.TYPE_TRANSFORM)
+
+	#	assert (target_animation.get_track_count() == 1)
+	target_animation.track_set_path (target_track_id, "Armature/Skeleton:UpperArm_R")
+	print ("bone id = ", get_node("Armature/Skeleton").find_bone("UpperArm_R"))
+	assert (get_node("Armature/Skeleton").find_bone("UpperArm_R") > 0)
+	
+	print (target_animation.track_get_type(target_track_id))
+	get_node("AnimationPlayer").add_animation("Targeting", target_animation)
+	print (get_node("AnimationPlayer").has_animation("Targeting"))
 
 	pass
 
 func updateTargetAnimation(transform):
-	#target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
+	var res = target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(1.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
+	print ("insert result = ", res, " ")
+	
 	pass
 
 func replay():
@@ -58,6 +79,8 @@ func _ready():
 	
 	set_process_input(true)
 	set_fixed_process(true)
+	
+	initTargetAnimation()
 
 func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)
@@ -103,6 +126,9 @@ func _keyboardInput(delta):
 		get_node("AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
 	else:
 		get_node("AnimationPlayer").play("Standing")
+		
+	#get_node("AnimationPlayer").stop_all()
+	#get_node("AnimationPlayer").play("Targeting")
 		
 	var motion = vel*delta
 	motion=move(vel*delta)
