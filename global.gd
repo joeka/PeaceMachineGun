@@ -1,13 +1,18 @@
 extends Node
 
-var current_scene = null
-var current_path = "levels/testlevel.scn"
+var _current_scene = null
+var _current_scene_id = 0
+var _current_path = null
 
 var _replay_first = []
 var _replay_events = []
 var _replay = false
 
 var _time = 0
+
+var _scenes = [
+		"res://title.scn",
+		"res://levels/testlevel.scn"]
 
 func reset_replay():
 	_replay_events = []
@@ -47,9 +52,10 @@ func _fixed_process( delta ):
 
 func _ready():
 	var root = get_tree().get_root()
-	current_scene = root.get_child( root.get_child_count() - 1 )
+	_current_scene = root.get_child( root.get_child_count() - 1 )
 	set_process_input(true)
 	set_fixed_process(true)
+	reset_replay()
 
 func _input(event):
 	if event.is_action("reload_scene"):
@@ -57,16 +63,21 @@ func _input(event):
 		replay()
 
 func reload_scene():
-	if current_path != null:
-		goto_scene( current_path )
+	if _current_path != null:
+		goto_scene( _current_path )
 
 func goto_scene( path ):
-	current_path = path
+	reset_replay()
+	_current_path = path
 	call_deferred( "_deferred_goto_scene", path )
 
+func next_scene():
+	var id = _current_scene_id + 1
+	if _scenes.size() > id:
+		goto_scene(_scenes[id])
+
 func _deferred_goto_scene( path ):
-	current_scene.free()
+	_current_scene.free()
 	var s = ResourceLoader.load( path )
-	current_scene = s.instance()
-	get_tree().get_root().add_child(current_scene)
-	reset_replay()
+	_current_scene = s.instance()
+	get_tree().get_root().add_child(_current_scene)
