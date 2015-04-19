@@ -13,6 +13,7 @@ const JUMP_SPEED = 7
 const MAX_SLOPE_ANGLE = 30
 const ACCEL= 6
 const DEACCEL= 10
+var is_running = false
 
 func _fixed_process(delta):
 	_keyboardInput(delta)
@@ -54,8 +55,19 @@ func _keyboardInput(delta):
 		
 	hvel = hvel.linear_interpolate(target,accel*delta)
 	
-	vel.x=hvel.x;
-	vel.z=hvel.z	
+	vel.x=hvel.x
+	vel.z=hvel.z
+	
+	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
+		is_running = true
+		get_node("Spatial/AnimationPlayer").play("Running-cycle")
+	
+	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
+		is_running = false
+		get_node("Spatial/AnimationPlayer").play("Standing")
+
+	if (is_running):
+		get_node("Spatial/AnimationPlayer").set_speed (vel.length()/MAX_SPEED)
 		
 	var motion = vel*delta
 	motion=move(vel*delta)
