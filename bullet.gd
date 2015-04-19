@@ -27,3 +27,7 @@ func _ready():
 		player = get_node("../../Player")
 
 	set_fixed_process(true)
+
+
+func _on_FreeTimer_timeout():
+	queue_free()
