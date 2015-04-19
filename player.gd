@@ -17,6 +17,7 @@ var targeting_track_id = 0
 
 var _time = 0
 var _replay = false
+var _animation_record = []
 var _record = []
 
 func _fixed_process(delta):
@@ -111,6 +112,7 @@ func _keyboardInput(delta):
 	
 	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
 		is_running = true
+		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Running-cycle"} ) 
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false

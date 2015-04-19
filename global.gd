@@ -18,9 +18,11 @@ func replay():
 	for entry in _replay_first:
 		entry["node"].replay()
 
-func register_replay( node, type ):
+func register_replay( node, type, opt1=null, opt2=null ):
 	if type == "player":
 		_replay_first.push_back( {"node": node, "type": type})
+	elif type == "animation":
+		_replay_events.push_back( {"time": _time + opt2, "node": node, "type": type, "opt1": opt1} )
 	else:
 		_replay_events.push_back( {"time": _time, "node": node, "type": type} )
 
@@ -28,7 +30,14 @@ func _fixed_process( delta ):
 	if _replay:
 		_time -= delta
 		while _replay_events.size() > 0 and _replay_events[_replay_events.size() - 1]["time"] > _time:
-			_replay_events[_replay_events.size() - 1]["node"].replay()
+			var entry = _replay_events[_replay_events.size() - 1]
+			if entry.size() < 4:
+				entry["node"].replay() 
+			elif entry.size() < 5:
+				entry["node"].replay(entry["opt1"])
+			else:
+				entry["node"].replay(entry["opt1"], entry["opt2"])
+				
 			_replay_events.remove(_replay_events.size() - 1)
 		if _time <= 0:
 			_replay = false

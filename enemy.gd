@@ -4,8 +4,21 @@ var bullet_prefab = null
 
 func _ready():
 	bullet_prefab = preload("res://bullet.scn")
+	var ani = get_node("Model/AnimationPlayer")
+	ani.play("Death-cycle", -1, 1, false)
+	var l = ani.get_animation("Death-cycle").get_length()
+	ani.seek(l, false)
+	ani.get_animation("Death-cycle").set_loop(false)
+
+func replay( animation ):
+	get_node("Model/AnimationPlayer").play(animation, -1, 1, false)
 
 func _on_Timer_timeout():
+	get_node("Model/AnimationPlayer").play("Death-cycle", -1, -1, true)
+	
+	get_node("/root/global").register_replay(self, "animation", "Death-cycle", \
+			get_node("Model/AnimationPlayer").get_current_animation_length())
+	
 	var bullet = bullet_prefab.instance()
 	bullet.set_name("Bullet")
 	add_child(bullet)
