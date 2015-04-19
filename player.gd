@@ -11,6 +11,9 @@ export(int) var JUMP_SPEED = 7
 export(int) var MAX_SLOPE_ANGLE = 30
 export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
+const TARGET_OUTER_RADIUS = 4.0
+const TARGET_INNER_RADIUS = 3.0
+
 var is_running = false
 var targeting_animation
 var targeting_track_id = 0
@@ -45,23 +48,51 @@ func initTargetAnimation():
 	# remove old animation of player
 	assert (get_node("AnimationPlayer").has_animation("Targeting"))
 	targeting_animation = get_node("AnimationPlayer").get_animation("Targeting")
+	
 	var track_count = targeting_animation.get_track_count()
-	print (targeting_animation.get_track_count())
-	
-	
-	#assert (targeting_animation.get_track_count() == 1)
-	print (targeting_animation.track_get_path(1))
+	targeting_track_id = -1
+	for i in range (track_count):
+		if targeting_animation.track_get_path(i).get_property() == "UpperArm_R":
+			targeting_track_id = i
+			break
+			
+	assert (targeting_track_id >= 0)
 
 	pass
 
 func updateTargetAnimation(transform):
-	#var res = target_animation.transform_track_insert_key (target_track_id, 0.0, Vector3(1.0, 0.0, 0.0), Quat(transform.basis), Vector3 (1.0, 1.0, 1.0))
+	var bullet_location = findClosestBulletLocation()
 	
-	#print ("insert result = ", res, " ")
+	# find the right shoulder
+	var skeleton = get_node("Armature/Skeleton")
+	var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
+	var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+	
+	var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
+	
+	var orientation = Quat(Transform().looking_at (bullet_location - shoulder_location, Vector3 (0.0, 1.0, 0.0)).basis)
+#	print (orientation)
+#	orientation = Quat()
+	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(1.0, 1.0, 1.0), orientation, Vector3 (1.0, 1.0, 1.0))
+#	targeting_animation.transform_track_insert_key (targeting_track_id, 0.001, Vector3(1.0, 1.0, 1.0), orientation, Vector3 (1.0, 1.0, 1.0))
+#	print (targeting_animation.track_get_key_count(targeting_track_id))
+#
+	var distance = (bullet_location - shoulder_location).length()
+	
+	var targeting_weighting = 0.0
+	if distance < TARGET_OUTER_RADIUS:
+		if distance < TARGET_INNER_RADIUS:
+			targeting_weighting = 1.0
+		else:
+			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
+
+	print ("distance = ", distance, " weighting = ", targeting_weighting)
+	get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
+	
 	pass
 
-func findClosestBullet():
-	pass
+func findClosestBulletLocation():
+	return Vector3(0.0, 0.0, 0.0)
 
 func replay():
 	_replay = true
