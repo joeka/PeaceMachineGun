@@ -23,6 +23,11 @@ var _replay = false
 var _animation_record = []
 var _record = []
 
+func _record_animation_state():
+	pass
+func _record_animation_speed():
+	pass
+
 func _fixed_process(delta):
 	if _replay:
 		_time -= delta
@@ -143,7 +148,6 @@ func _keyboardInput(delta):
 	
 	if (not is_running and (vel.x * vel.x + vel.z * vel.z) > 0.1):
 		is_running = true
-		_animation_record.push_back( {"time": _time, "action": "play", "animation": "Running-cycle"} ) 
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
