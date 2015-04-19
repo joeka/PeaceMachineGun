@@ -1,18 +1,16 @@
 extends KinematicBody
 
-var max_vel = 10
-
-var mouse_sensitivity = 0.2
+export(float) var mouse_sensitivity = 0.2
 var yaw = 0
 #var pitch = 0
 
-var g = -19.8
+export(float) var g = -19.8
 var vel = Vector3()
-const MAX_SPEED = 8
-const JUMP_SPEED = 7
-const MAX_SLOPE_ANGLE = 30
-const ACCEL= 6
-const DEACCEL= 10
+export(int) var MAX_SPEED = 8
+export(int) var JUMP_SPEED = 7
+export(int) var MAX_SLOPE_ANGLE = 30
+export(int) var ACCEL= 6
+export(int) var DEACCEL= 10
 var is_running = false
 
 func _fixed_process(delta):
