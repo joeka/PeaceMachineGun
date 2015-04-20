@@ -15,7 +15,8 @@ var replay_delay = 3
 
 var _levels = [
 		"res://title.scn",
-		"res://levels/level1.scn"
+		"res://levels/level1.scn",
+		"res://levels/level2.scn"
 		]
 var _music_r = [
 		"res://sounds/Level_0_r.ogg",
