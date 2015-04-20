@@ -23,6 +23,12 @@ func _ready():
 	bullet.rotate(Vector3(0,1,0), deg2rad(180))
 	bullet.set_scale(scale)
 	get_node("/root/global").register_bullet( bullet )
+	get_node("/root/global").register_enemy( self )
+
+func start():
+	var timer = get_node("Timer")
+	if timer != null:
+		timer.start()
 
 func replay( animation ):
 	get_node("Model/AnimationPlayer").play(animation, -1, 1, false)
