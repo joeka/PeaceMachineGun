@@ -46,6 +46,8 @@ func get_current_level():
 
 func replay():
 	_replay = true
+	if _current_scene and _current_scene.get_node("ReplayCamera"):
+		_current_scene.get_node("ReplayCamera").make_current()
 	for entry in _replay_first:
 		entry["node"].replay()
 	_replay_first = []
