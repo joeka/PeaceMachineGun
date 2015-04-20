@@ -85,35 +85,60 @@ func initTargetAnimation():
 
 	pass
 
+func resetTargetingAnimation():
+#	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
+#	targeting_animation.clear()
+#	targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
+#	targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
+#	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
+#	
+#	var root_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
+#	targeting_animation.track_set_path (root_track_id, "Armature/Skeleton:Root")
+#	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(), Vector3 (1.0, 1.0, 1.0))	
+
+
+	pass
+
 func updateTargetAnimation(transform):
 	var bullet_location = findClosestBulletLocation()
-	if bullet_location != null:
-		# find the right shoulder
-		var skeleton = get_node("Armature/Skeleton")
-		var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
-		var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
-		var right_shoulder_bone_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
-		
-		var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
 	
-		var player_orientation = get_global_transform().basis
-		var player_position = get_global_transform().origin
+	if bullet_location == null:
+		return
 	
-		var direction = (shoulder_location - bullet_location).normalized()
-	#	
-		var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
-		var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
-	#	print ("atan: ", target_orientation, " direction = ", direction.normalized())
-		
-		var up = Vector3 (0.0, 1.0, 0.0)
-		var side = up.cross(-direction)
-		target_orientation = Matrix3(side, up, -direction)
+	# find the right shoulder
+	var skeleton = get_node("Armature/Skeleton")
+	var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
+	var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+	var right_shoulder_bone_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+
+	var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
+	var player_position = get_global_transform().origin
+	var direction = (shoulder_location - bullet_location).normalized()
 	
-		var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
-		targeting_animation.clear()
-		targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
-		targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
-		targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
+#	var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
+#	var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
+#	print ("atan: ", target_orientation, " direction = ", direction.normalized())
+	
+	var up = Vector3 (0.0, 1.0, 0.0)
+	var side = up.cross(-direction)
+	var target_orientation = Matrix3(side, up, -direction)
+
+	var player_orientation = get_global_transform().basis
+	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
+
+#	resetTargetingAnimation()
+#	targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
+#	targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
+#	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
+
+	# compute weighting of the targeting
+	var distance = (bullet_location - shoulder_location).length()
+	var targeting_weighting = 0.0
+	if distance < TARGET_OUTER_RADIUS:
+		if distance < TARGET_INNER_RADIUS:
+			targeting_weighting = 1.0
+		else:
+			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
 	
 		# compute weighting of the targeting
 		var distance = (bullet_location - shoulder_location).length()
