@@ -15,6 +15,8 @@ var _levels = [
 		]
 var _credits_screen = "res://credits.scn"
 
+var _enemies = []
+
 var _bullets = []
 var _bullet_counter = 0
 
@@ -24,6 +26,16 @@ func unregister_bullet( bullet ):
 	_bullets.remove(_bullets.find( bullet ))
 func get_bullets():
 	return _bullets
+
+func register_enemy( enemy ):
+	_enemies.push_back(enemy)
+func get_enemies():
+	return _enemies
+
+func start():
+	reset_replay()
+	for enemy in _enemies:
+		enemy.start()
 
 func bullet_caught( bullet ):
 	_bullet_counter += 1
@@ -35,6 +47,7 @@ func bullet_caught( bullet ):
 		reload_scene()
 
 func reset_replay():
+	_replay_first = []
 	_replay_events = []
 	_time = 0
 	
@@ -95,6 +108,7 @@ func reload_scene():
 func goto_scene( path ):
 	reset_replay()
 	_bullets = []
+	_enemies = []
 	_bullet_counter = 0
 	_current_path = path
 	call_deferred( "_deferred_goto_scene", path )
