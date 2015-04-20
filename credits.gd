@@ -25,7 +25,6 @@ func _resize():
 	
 
 func _input(event):
-	if event.is_action("ui_cancel"):
+	if event.is_pressed():
 		OS.get_main_loop().quit()
-	elif event.is_pressed():
-		get_node("/root/global").next_scene()
+
