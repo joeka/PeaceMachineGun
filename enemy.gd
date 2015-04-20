@@ -1,6 +1,6 @@
 extends Spatial
 
-export (String, "Frau_1", "Frau_2", "Mann_1", "Mann_2", "Kind_1", "Kind_2") var EnemyType
+export (String, "Frau_1", "Frau_2", "Mann_1", "Mann_2", "Mann_3", "Mann_4", "Mann_5", "Kind_1", "Kind_2", "Kind_2", "Kind_3", "Kind_4", "Kind_5", "Kind_6", "Kind_7", "Kind_8", "Kind_9") var EnemyType
 
 func _ready():
 	var revive_timer = get_node("ReviveTimer")
