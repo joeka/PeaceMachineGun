@@ -93,6 +93,9 @@ func _fixed_process( delta ):
 func _ready():
 	var root = get_tree().get_root()
 	_current_scene = root.get_child( root.get_child_count() - 1 )
+	if not _current_path and _levels.size() > 0:
+		_current_path = _levels[0]
+	
 	set_process_input(true)
 	set_fixed_process(true)
 	reset_replay()
