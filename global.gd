@@ -3,7 +3,6 @@ extends Node
 var _current_scene = null
 var _current_level_id = -1
 var _current_path = "res://levels/level1.scn"
-var _showing_level_screen = false
 
 var _replay_first = []
 var _replay_events = []
@@ -14,8 +13,6 @@ var _time = 0
 var _levels = [
 		"res://levels/level1.scn"
 		]
-var _level_screen = "res://level.scn"
-var _game_over_screen = "res://gameover.scn"
 var _credits_screen = "res://credits.scn"
 
 var _bullets = []
@@ -103,18 +100,11 @@ func goto_scene( path ):
 	call_deferred( "_deferred_goto_scene", path )
 
 func next_scene():
-	if _showing_level_screen:
-		_showing_level_screen = false
-		goto_scene(_levels[_current_level_id])
-	elif _current_level_id == _levels.size() - 1:
-		_current_level_id += 1
-		goto_scene(_game_over_screen)
-	elif _current_level_id == _levels.size():
+	_current_level_id += 1
+	if _current_level_id == _levels.size():
 		goto_scene(_credits_screen)
 	else:
-		_current_level_id += 1
-		_showing_level_screen = true
-		goto_scene(_level_screen)
+		goto_scene(_levels[_current_level_id])
 
 func _deferred_goto_scene( path ):
 	_current_scene.free()
