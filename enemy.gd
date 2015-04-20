@@ -3,6 +3,9 @@ extends Spatial
 var bullet_prefab = null
 
 func _ready():
+	var timer = get_node("Timer")
+	if timer != null:
+		timer.connect("timeout", self, "_on_Timer_timeout")
 	bullet_prefab = preload("res://bullet.scn")
 	var ani = get_node("Model/AnimationPlayer")
 	ani.play("Death-cycle", -1, 1, false)
