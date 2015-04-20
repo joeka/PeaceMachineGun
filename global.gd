@@ -61,6 +61,10 @@ func replay():
 	if _current_scene and _current_scene.get_node("ReplayCamera"):
 		_current_scene.get_node("ReplayCamera").make_current()
 
+	for entry in _replay_first:
+		entry["node"].replay(replay_delay)
+	_replay_first = []
+
 func register_replay( node, type, opt1=null, opt2=null ):
 	if type == "player":
 		_replay_first.push_back( {"node": node, "type": type})
@@ -70,19 +74,11 @@ func register_replay( node, type, opt1=null, opt2=null ):
 		_replay_events.push_back( {"time": _time, "node": node, "type": type} )
 
 var _once = true
-var _replay_start_time = null
 func _fixed_process( delta ):
 	if _replay:
 		if _once:
-			_replay_start_time = _time
 			_time += replay_delay
-			_once = false
-		if _time < _replay_start_time:
-			for entry in _replay_first:
-				entry["node"].replay()	
-			_replay_first = []
-			_replay_start_time = -666
-		
+			_once = false	
 		
 		_time -= delta
 		while _replay_events.size() > 0 and _replay_events[_replay_events.size() - 1]["time"] > _time:

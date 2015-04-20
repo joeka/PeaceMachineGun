@@ -32,6 +32,8 @@ var _start_trigger = null
 
 var has_gun = true
 
+var _replay_delay = 0
+
 func pickup_gun():
 	if not has_gun:
 		# pick it up! do it!
@@ -42,8 +44,12 @@ func pickup_gun():
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 
+var _once = true
 func _fixed_process(delta):
 	if _replay:
+		if _once:
+			_time += _replay_delay
+			_once = false
 		_time -= delta
 		
 		# replay movement
@@ -59,6 +65,7 @@ func _fixed_process(delta):
 		
 		if _time <= 0:
 			_replay = false
+			_once = true
 		
 	else:
 		_time += delta
@@ -182,7 +189,8 @@ func findClosestBulletLocation():
 	else:
 		return null
 
-func replay():
+func replay( delay = 0 ):
+	_replay_delay = delay
 	_replay = true
 
 func _ready():
