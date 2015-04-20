@@ -36,6 +36,7 @@ var _credits_screen = "res://credits.scn"
 var _enemies = []
 
 var _bullets = []
+var _sounds = []
 var _bullet_counter = 0
 
 func register_bullet( bullet ):
@@ -49,6 +50,14 @@ func register_enemy( enemy ):
 	_enemies.push_back(enemy)
 func get_enemies():
 	return _enemies
+	
+func register_sound( source, sound ):
+	if source != null:
+		var sample = source.get_sample_library().get_sample(sound)
+		var length = sample.get_length() / 44100 # sample rate
+		
+		_sounds.push_back({"time": _time + length, "source": source, "sound": sound})
+
 
 func get_current_level_id():
 	return _current_level_id
@@ -98,7 +107,7 @@ func _fixed_process( delta ):
 	if _replay:
 		if _once:
 			_time += replay_delay
-			_once = false	
+			_once = false
 		
 		_time -= delta
 		while _replay_events.size() > 0 and _replay_events[_replay_events.size() - 1]["time"] > _time:
@@ -111,6 +120,12 @@ func _fixed_process( delta ):
 				entry["node"].replay(entry["opt1"], entry["opt2"])
 				
 			_replay_events.remove(_replay_events.size() - 1)
+		
+		while _sounds.size() > 0 and _sounds[_sounds.size() - 1]["time"] > _time:
+			var entry = _sounds[_sounds.size() - 1]
+			entry["source"].play(entry["sound"])
+			_sounds.remove(_sounds.size() - 1)
+		
 		if _time <= 0:
 			_replay = false
 			_once = true

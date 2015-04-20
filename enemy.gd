@@ -1,5 +1,7 @@
 extends Spatial
 
+export (String, "Frau_1", "Frau_2", "Mann_1", "Mann_2", "Kind_1", "Kind_2") var EnemyType
+
 func _ready():
 	var revive_timer = get_node("ReviveTimer")
 	if revive_timer != null:
@@ -37,9 +39,11 @@ func replay( animation ):
 	get_node("Model/AnimationPlayer").play(animation, -1, 1, false)
 
 func _on_revive_start():
-	get_node("Model/SpatialSamplePlayer").play("schrei_1")
+	var global = get_node("/root/global")
+	get_node("Model/SpatialSamplePlayer").play(EnemyType + "_r")
+	global.register_sound(get_node("Model/SpatialSamplePlayer"), EnemyType + "_n")
 	
-	get_node("/root/global").register_replay(self, "animation", "Death-cycle", \
+	global.register_replay(self, "animation", "Death-cycle", \
 			get_node("Model/AnimationPlayer").get_current_animation_length())
 	get_node("Model/AnimationPlayer").play("Death-cycle", -1, -1, true)
 	

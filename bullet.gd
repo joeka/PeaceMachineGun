@@ -15,8 +15,8 @@ export(int) var speed = 100
 
 func start():
 	set_fixed_process(true)
-	get_node("SpatialSamplePlayer").play("schrei_1")
 	get_node("SpatialSamplePlayer").play("flug_1")
+	global.register_sound(get_node("SpatialSamplePlayer"), "flug_1")
 
 func is_active():
 	return started
@@ -62,7 +62,9 @@ func player_collision():
 		var b2 = player.get_global_transform().basis[2]
 		var dot = b1.x*b2.x + b1.z*b2.z
 		if dot < 0.1 + precision:
-			get_node("SpatialSamplePlayer").play("schuss_1")
+			print("Schuss oder nicht schuss")
+			get_node("SpatialSamplePlayer").play("Schuss_1_r")
+			global.register_sound(get_node("SpatialSamplePlayer"), "Schuss_1_n")
 			global.bullet_caught(self)
 		else:
 			#TODO cooler stuff
