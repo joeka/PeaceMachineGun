@@ -63,7 +63,6 @@ func player_collision():
 		if dot < 0.1 + precision:
 			global.bullet_caught(self)
 		else:
-			print(dot)
 			#TODO cooler stuff
 			global.replay()
 		disable()
