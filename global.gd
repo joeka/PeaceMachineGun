@@ -1,8 +1,8 @@
 extends Node
 
 var _current_scene = null
-var _current_level_id = -1
-var _current_path = "res://levels/level1.scn"
+var _current_level_id = 0
+var _current_path = null
 
 var _replay_first = []
 var _replay_events = []
@@ -11,6 +11,7 @@ var _replay = false
 var _time = 0
 
 var _levels = [
+		"res://title.scn",
 		"res://levels/level1.scn"
 		]
 var _credits_screen = "res://credits.scn"
@@ -32,8 +33,11 @@ func register_enemy( enemy ):
 func get_enemies():
 	return _enemies
 
+func get_current_level_id():
+	return _current_level_id
+
 func start():
-	reset_replay()
+	_time = 0
 	for enemy in _enemies:
 		enemy.start()
 
@@ -41,10 +45,6 @@ func bullet_caught( bullet ):
 	_bullet_counter += 1
 	if _bullet_counter == _bullets.size():
 		next_scene() #TODO something fancier
-	else:
-		#TODO talk to the player and stuff
-		print("try to get all bullets")
-		reload_scene()
 
 func reset_replay():
 	_replay_first = []
@@ -59,7 +59,7 @@ func replay():
 	if _current_scene and _current_scene.get_node("ReplayCamera"):
 		_current_scene.get_node("ReplayCamera").make_current()
 	for entry in _replay_first:
-		entry["node"].replay()
+		entry["node"].replay()	
 	_replay_first = []
 
 func register_replay( node, type, opt1=null, opt2=null ):
