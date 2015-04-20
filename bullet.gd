@@ -63,13 +63,10 @@ func player_collision():
 		var b2 = player.get_global_transform().basis[2]
 		var dot = b1.x*b2.x + b1.z*b2.z
 		if abs(dot) > 0.1 - precision:
-			print("dotdot ", dot)
 			get_node("SpatialSamplePlayer").play("Schuss_1_r")
 			global.register_sound(get_node("SpatialSamplePlayer"), "Schuss_1_n")
 			global.bullet_caught(self)
 		else:
-			print("faildot ", dot)
-			#TODO cooler stuff
 			global.replay()
 		disable()
 
