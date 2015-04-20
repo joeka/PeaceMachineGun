@@ -40,6 +40,7 @@ var _sounds = []
 var _bullet_counter = 0
 
 var _gameover_screen = null
+var _fade_screen = null
 
 func register_bullet( bullet ):
 	_bullets.push_back( bullet )
@@ -72,7 +73,17 @@ func start():
 func bullet_caught( bullet ):
 	_bullet_counter += 1
 	if _bullet_counter == _bullets.size():
-		next_scene() #TODO something fancier
+		var fade_instance = _fade_screen.instance()
+		var fade_time = 3
+		fade_instance.set_fade_time(fade_time)
+		fade_instance.get_node("Timer").set_wait_time(fade_time)
+		fade_instance.get_node("Timer").connect("timeout", self, "timed_next_scene")
+		fade_instance.fade_out()
+		fade_instance.get_node("Timer").start()
+		get_viewport().get_camera().add_child(fade_instance)
+
+func timed_next_scene():
+	next_scene()
 
 func reset_replay():
 	_replay_first = []
@@ -160,6 +171,7 @@ func _ready():
 	_current_scene.get_node("StreamPlayer").play()
 	
 	_gameover_screen = ResourceLoader.load( "res://gameover.scn" )
+	_fade_screen = ResourceLoader.load( "res://blendover.scn" )
 
 func _input(event):
 	if event.is_action("reload_scene"):
