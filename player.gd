@@ -87,49 +87,61 @@ func initTargetAnimation():
 
 func updateTargetAnimation(transform):
 	var bullet_location = findClosestBulletLocation()
+	if bullet_location != null:
+		# find the right shoulder
+		var skeleton = get_node("Armature/Skeleton")
+		var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
+		var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+		var right_shoulder_bone_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+		
+		var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
 	
-	# find the right shoulder
-	var skeleton = get_node("Armature/Skeleton")
-	var right_shoulder_bone_id = skeleton.find_bone("UpperArm_R")
-	var right_shoulder_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
-	var right_shoulder_bone_transform = skeleton.get_bone_global_pose (right_shoulder_bone_id)
+		var player_orientation = get_global_transform().basis
+		var player_position = get_global_transform().origin
 	
-	var shoulder_location = right_shoulder_transform.origin + get_global_transform().origin
-
-	var player_orientation = get_global_transform().basis
-	var player_position = get_global_transform().origin
-
-	var direction = (shoulder_location - bullet_location).normalized()
-#	
-	var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
-	var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
-#	print ("atan: ", target_orientation, " direction = ", direction.normalized())
+		var direction = (shoulder_location - bullet_location).normalized()
+	#	
+		var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
+		var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
+	#	print ("atan: ", target_orientation, " direction = ", direction.normalized())
+		
+		var up = Vector3 (0.0, 1.0, 0.0)
+		var side = up.cross(-direction)
+		target_orientation = Matrix3(side, up, -direction)
 	
-	var up = Vector3 (0.0, 1.0, 0.0)
-	var side = up.cross(-direction)
-	target_orientation = Matrix3(side, up, -direction)
-
-	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
-	targeting_animation.clear()
-	targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
-	targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
-	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
-
-	# compute weighting of the targeting
-	var distance = (bullet_location - shoulder_location).length()
-	var targeting_weighting = 0.0
-	if distance < TARGET_OUTER_RADIUS:
-		if distance < TARGET_INNER_RADIUS:
-			targeting_weighting = 1.0
-		else:
-			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
+		var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
+		targeting_animation.clear()
+		targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
+		targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
+		targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
 	
-	_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
-	get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
-	
+		# compute weighting of the targeting
+		var distance = (bullet_location - shoulder_location).length()
+		var targeting_weighting = 0.0
+		if distance < TARGET_OUTER_RADIUS:
+			if distance < TARGET_INNER_RADIUS:
+				targeting_weighting = 1.0
+			else:
+				targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
+		
+		_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
+		get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
+		
 
 func findClosestBulletLocation():
-	return Vector3(0.0, 0.0, 0.0)
+	var bullets = get_node("/root/global").get_bullets()
+	if bullets.size() > 0:
+		var min_dist = 9999
+		var min_origin = null
+		for bullet in bullets:
+			if bullet != null and (not bullet._disabled or bullet._replay):
+				var d = get_global_transform().origin.distance_to(bullet.get_global_transform().origin)
+				if d < min_dist:
+					min_dist = d
+					min_origin = bullet.get_global_transform().origin
+		return min_origin
+	else:
+		return null
 
 func replay():
 	_replay = true
