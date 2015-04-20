@@ -3,7 +3,7 @@ extends Spatial
 func _ready():
 	var timer = get_node("Timer")
 	if timer != null:
-		timer.connect("timeout", self, "_on_Timer_timeout")
+		timer.connect("timeout", self, "_on_revive_start")
 	
 	var ani = get_node("Model/AnimationPlayer")
 	ani.play("Death-cycle", -1, 1, false)
@@ -33,7 +33,8 @@ func start():
 func replay( animation ):
 	get_node("Model/AnimationPlayer").play(animation, -1, 1, false)
 
-func _on_Timer_timeout():
+func _on_revive_start():
+	get_node("Model/SpatialSamplePlayer").play("schrei_1")
 	get_node("Model/AnimationPlayer").play("Death-cycle", -1, -1, true)
 	
 	get_node("/root/global").register_replay(self, "animation", "Death-cycle", \
