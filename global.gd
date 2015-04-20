@@ -18,9 +18,22 @@ var _level_screen = "res://level.scn"
 var _game_over_screen = "res://gameover.scn"
 var _credits_screen = "res://credits.scn"
 
+var _bullets = []
+var _bullet_counter = 0
+
+func register_bullet( bullet ):
+	_bullets.push_back( bullet )
+func get_bullets():
+	return _bullets
+
 func bullet_caught( bullet ):
-	if true: #TODO: check number of bullets in level
+	_bullet_counter += 1
+	if _bullet_counter == _bullets.size():
 		next_scene() #TODO something fancier
+	else:
+		#TODO talk to the player and stuff
+		print("try to get all bullets")
+		reload_scene()
 
 func reset_replay():
 	_replay_events = []
@@ -80,6 +93,8 @@ func reload_scene():
 
 func goto_scene( path ):
 	reset_replay()
+	_bullets = []
+	_bullet_counter = 0
 	_current_path = path
 	call_deferred( "_deferred_goto_scene", path )
 
