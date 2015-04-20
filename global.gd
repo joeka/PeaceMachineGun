@@ -23,6 +23,8 @@ var _bullet_counter = 0
 
 func register_bullet( bullet ):
 	_bullets.push_back( bullet )
+func unregister_bullet( bullet ):
+	_bullets.remove(_bullets.find( bullet ))
 func get_bullets():
 	return _bullets
 

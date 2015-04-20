@@ -70,6 +70,7 @@ func player_collision():
 
 func replay():
 	_replay = true
+	_disabled = false
 	trajectory.show()
 	show()
 	set_fixed_process(true)
@@ -88,6 +89,7 @@ func disable():
 func _destroy():
 	if trajectory != null:
 		trajectory.queue_free()
+	global.unregister_bullet(self)
 	queue_free()
 
 func _ready():
