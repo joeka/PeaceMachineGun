@@ -3,6 +3,8 @@ extends Spatial
 export (String, "Frau_1", "Frau_2", "Mann_1", "Mann_2", "Mann_3", "Mann_4", "Mann_5", "Kind_1", "Kind_2", "Kind_2", "Kind_3", "Kind_4", "Kind_5", "Kind_6", "Kind_7", "Kind_8", "Kind_9") var EnemyType
 
 func _ready():
+	set_fixed_process(true)
+
 	var revive_timer = get_node("ReviveTimer")
 	if revive_timer != null:
 		revive_timer.connect("timeout", self, "_on_revive_start")
@@ -29,6 +31,12 @@ func _ready():
 	bullet.set_scale(scale)
 	get_node("/root/global").register_bullet( bullet )
 	get_node("/root/global").register_enemy( self )
+
+func _fixed_process(delta):
+	var animation_pos = get_node("Model/AnimationPlayer").get_current_animation_pos()
+	var animation_length = get_node("Model/AnimationPlayer").get_current_animation_length()
+	var blood_scaling = max (0.0, (animation_pos - animation_length * 0.5) / (animation_length - animation_length * 0.5))
+	get_node("Model/BloodSpot").set_scale(Vector3 (blood_scaling, blood_scaling, blood_scaling))
 
 func start():
 	var timer = get_node("ReviveTimer")
