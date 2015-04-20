@@ -174,7 +174,6 @@ func replay():
 	_replay = true
 
 func _ready():
-	get_node("/root/global").register_replay(self, "player")
 	var b = get_global_transform().basis[2]
 	
 	yaw = 90 - rad2deg(atan2(b.z, b.x))
@@ -185,6 +184,12 @@ func _ready():
 #	get_node("AnimationTreePlayer").set_active(false)
 	
 	initTargetAnimation()
+
+func start():
+	if not _started:
+		_started = true
+		get_node("/root/global").register_replay(self, "player")
+		get_node("/root/global").start()
 
 func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)
@@ -202,10 +207,9 @@ func _keyboardInput(delta):
 	dir.y = 0
 	dir = dir.normalized()
 	
-	if not _started and dir.length() != 0:
-		_started = true
-		get_node("/root/global").start()
-
+	if not _started and get_node("/root/global").get_current_level_id() > -1 and dir.length() != 0:
+		start()
+	
 	vel.y+=delta*g
 	
 	var hvel = vel

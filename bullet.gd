@@ -66,7 +66,6 @@ func player_collision():
 			get_node("SpatialSamplePlayer").play("schuss_1")
 			global.bullet_caught(self)
 		else:
-			print(dot)
 			#TODO cooler stuff
 			global.replay()
 		disable()
