@@ -158,6 +158,11 @@ func _ready():
 func _input(event):
 	if event.is_action("reload_scene"):
 		reload_scene()
+	elif event.is_action("ui_cancel"):
+		if _current_level_id == 0:
+			OS.get_main_loop().quit()
+		else:
+			goto_scene(_levels[0])
 
 func reload_scene():
 	if _current_path != null:
