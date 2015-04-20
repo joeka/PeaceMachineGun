@@ -28,10 +28,13 @@ var _record = []
 var closest_bullet_location = Vector3()
 
 var _started = false
+var allow_throw_gun = false
+var gun_flying = false
+var has_gun = true
+var gun_position = Vector3()
 
 var _start_trigger = null
 
-var has_gun = true
 
 var _replay_delay = 0
 
@@ -41,6 +44,38 @@ func pickup_gun():
 		has_gun = true
 		get_node("GunMesh").show()
 		print ("Weapon picked up!")		
+
+func throw_gun():
+	if gun_flying:
+		return
+
+	print ("throwing gun")
+	gun_flying = true
+	has_gun = false
+
+	var gun_world_transform = get_global_transform()
+	gun_world_transform.origin += gun_world_transform.basis[2] * 2 - gun_world_transform.basis[0]
+		
+	var root = get_tree().get_root()
+	var current_scene = root.get_child( root.get_child_count() -1 )
+	current_scene.get_node("GunMesh").set_global_transform(gun_world_transform)
+	current_scene.get_node("GunMesh").show()
+	
+	var credit_transform = gun_world_transform
+	credit_transform.origin += credit_transform.basis[2] * 2 - credit_transform.basis[0]
+	
+	current_scene.get_node("Credit").set_global_transform(credit_transform)
+	current_scene.get_node("Credit").show()
+	
+	credit_transform.origin += credit_transform.basis[2] * 1 + 4 *credit_transform.basis[0]
+
+	current_scene.get_node("CreditThx").set_global_transform(credit_transform)
+	current_scene.get_node("CreditThx").show()
+
+			
+	get_node("GunMesh").hide()
+	
+	pass
 
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
@@ -74,7 +109,9 @@ func _fixed_process(delta):
 		_record.push_back({ "time": _time, "transform": get_transform() })
 
 	updateTargetAnimation(Transform())
-	updateGunPosition()
+	
+	if has_gun:
+		updateGunPosition()
 	
 func poseUpperArm():
 	var upper_arm_bone_id = get_node("Armature/Skeleton").find_bone("UpperArm_R")
@@ -234,6 +271,9 @@ func _keyboardInput(delta):
 		dir += player_xform.basis[0] 
 	elif Input.is_action_pressed("strafe_right"):
 		dir += -player_xform.basis[0]
+		
+	if Input.is_action_pressed("throw_weapon") and allow_throw_gun:
+		throw_gun()
 
 	dir.y = 0
 	dir = dir.normalized()
@@ -326,6 +366,7 @@ func updateGunPosition ():
 	var skeleton = get_node("Armature/Skeleton")
 	var right_hand_bone_id = skeleton.find_bone("Hand_R")
 	var right_hand_transform = skeleton.get_bone_global_pose (right_hand_bone_id)
+	gun_position = right_hand_transform.basis
 	get_node("GunMesh").set_transform(right_hand_transform.rotated(Vector3(0.0, 0.0, 0.0), 180))
 
 func _input(event):

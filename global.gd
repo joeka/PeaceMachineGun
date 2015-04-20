@@ -7,7 +7,6 @@ var _current_path = null
 var _replay_first = []
 var _replay_events = []
 var _replay = false
-var stream_player = StreamPlayer.new()
 
 var _time = 0
 
@@ -16,22 +15,22 @@ var replay_delay = 3
 var _levels = [
 		"res://title.scn",
 		"res://levels/level1.scn",
-		"res://levels/level2.scn"
+		"res://levels/level2.scn",
+		"res://levels/endlevel.scn",
 		]
+		
 var _music_r = [
 		"res://sounds/Level_0_r.ogg",
 		"res://sounds/Level_1_r.ogg",
 		"res://sounds/Level_2_r.ogg",
-		"res://sounds/Level_3_r.ogg",		
+		"res://sounds/Level_1_n.ogg",
 		]
 var _music_n = [
 		"res://sounds/Level_0_n.ogg",
 		"res://sounds/Level_1_n.ogg",
 		"res://sounds/Level_2_n.ogg",
-		"res://sounds/Level_3_n.ogg",		
+		"res://sounds/Level_1_n.ogg",
 		]
-
-var _credits_screen = "res://credits.scn"
 
 var _enemies = []
 
@@ -161,6 +160,8 @@ func _ready():
 	
 	_gameover_screen = ResourceLoader.load( "res://gameover.scn" )
 
+var skip_guard = false
+
 func _input(event):
 	if event.is_action("reload_scene"):
 		reload_scene()
@@ -169,6 +170,12 @@ func _input(event):
 			OS.get_main_loop().quit()
 		else:
 			goto_scene(_levels[0])
+	elif event.is_action("skip_level") and not skip_guard:
+		skip_guard = true
+		print ("Skipping level ", _current_level_id)
+		next_scene()
+	elif not event.is_action("skip_level"):
+		skip_guard = false
 
 func reload_scene():
 	if _current_path != null:
@@ -181,14 +188,19 @@ func goto_scene( path ):
 	_bullet_counter = 0
 	_current_path = path
 	
+	for i in range(_levels.size()):
+		if _levels[i] == path:
+			print ("current level is now: ", _current_level_id)
+			_current_level_id = i
+	
 	call_deferred( "_deferred_goto_scene", path )
 
 func next_scene():
 	_current_level_id += 1
 	if _current_level_id == _levels.size():
-		goto_scene(_credits_screen)
-	else:
-		goto_scene(_levels[_current_level_id])
+		_current_level_id = 0
+		
+	goto_scene(_levels[_current_level_id])
 
 func _deferred_goto_scene( path ):
 	_current_scene.free()
