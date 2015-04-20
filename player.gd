@@ -23,9 +23,12 @@ var _time = 0
 var _replay = false
 var _animation_record = []
 var _record = []
+var closest_bullet_location = Vector3()
 
 func bullet_alert( bullet ):
+	#if (get_global_transform().origin - bullet.get_global_transform().origin)
 	pass
+	
 
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
@@ -110,9 +113,11 @@ func updateTargetAnimation(transform):
 	var up = Vector3 (0.0, 1.0, 0.0)
 	var side = up.cross(-direction)
 	target_orientation = Matrix3(side, up, -direction)
-#	print ("new:  ", target_orientation, " direction = ", direction.normalized())
-	
+
 	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
+	targeting_animation.clear()
+	targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
+	targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
 	targeting_animation.transform_track_insert_key (targeting_track_id, 0.0, Vector3(0.0, 0.0, 0.0), Quat(orientation), Vector3 (1.0, 1.0, 1.0))
 
 	# compute weighting of the targeting
@@ -123,12 +128,6 @@ func updateTargetAnimation(transform):
 			targeting_weighting = 1.0
 		else:
 			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
-	
-	
-	
-	# disabling the following two lines properly shows the updated pose
-#	get_node("AnimationTreePlayer").set_active(false)
-#	get_node("AnimationPlayer").play("Targeting")
 	
 	_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
 	get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
