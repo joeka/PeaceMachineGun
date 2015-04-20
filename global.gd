@@ -10,6 +10,8 @@ var _replay = false
 
 var _time = 0
 
+var replay_delay = 3
+
 var _levels = [
 		"res://title.scn",
 		"res://levels/level1.scn"
@@ -70,8 +72,12 @@ func register_replay( node, type, opt1=null, opt2=null ):
 	else:
 		_replay_events.push_back( {"time": _time, "node": node, "type": type} )
 
+var _once = true
 func _fixed_process( delta ):
 	if _replay:
+		if _once:
+			_time += replay_delay
+			_once = false
 		_time -= delta
 		while _replay_events.size() > 0 and _replay_events[_replay_events.size() - 1]["time"] > _time:
 			var entry = _replay_events[_replay_events.size() - 1]
@@ -85,6 +91,7 @@ func _fixed_process( delta ):
 			_replay_events.remove(_replay_events.size() - 1)
 		if _time <= 0:
 			_replay = false
+			_once = true
 			#TODO do something. End event?
 			reload_scene()
 	else:

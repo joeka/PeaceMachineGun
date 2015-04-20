@@ -52,7 +52,6 @@ func _fixed_process(delta):
 			if node == player:
 				player_collision()
 			else:
-				#TODO: more stuff?
 				global.replay()
 				disable()
 		move(get_global_transform().basis[2] * delta * speed)
