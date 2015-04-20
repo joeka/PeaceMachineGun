@@ -14,6 +14,7 @@ export(int) var DEACCEL= 10
 const TARGET_OUTER_RADIUS = 6.0
 const TARGET_INNER_RADIUS = 4.0
 const TRIGGER_DISTANCE = 0.8
+const TARGET_ANGLE_DEG = 90
 
 var is_running = false
 var targeting_animation
@@ -136,7 +137,7 @@ func updateTargetAnimation(transform):
 	var player_position = get_global_transform().origin
 	var direction = (shoulder_location - bullet_location).normalized()
 	
-#	var angle = deg2rad(180.0) + atan2 (-player_position.x, player_position.z)
+	
 #	var target_orientation = Matrix3 (Vector3(0.0, 1.0, 0.0), angle)
 #	print ("atan: ", target_orientation, " direction = ", direction.normalized())
 	
@@ -145,8 +146,10 @@ func updateTargetAnimation(transform):
 	var target_orientation = Matrix3(side, up, -direction)
 
 	var player_orientation = get_global_transform().basis
-	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
-
+	var rel_direction = player_orientation.transposed() * direction
+	var angle = atan2 (rel_direction.x, -rel_direction.z)
+	
+#	var orientation = targeting_parent_matrices.transposed() * player_orientation.transposed() * target_orientation * Matrix3 (Vector3(1.0, 0.0, 0.0), deg2rad(-90.0)) * targeting_parent_matrices
 #	resetTargetingAnimation()
 #	targeting_track_id = targeting_animation.add_track (Animation.TYPE_TRANSFORM)
 #	targeting_animation.track_set_path (targeting_track_id, "Armature/Skeleton:UpperArm_R")
@@ -170,6 +173,10 @@ func updateTargetAnimation(transform):
 			else:
 				targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
 		
+		# angle targeting: depending on the angle we lift the arm
+		var angle_targeting = max (0.0, (TARGET_ANGLE_DEG * 0.5 - rad2deg(abs(angle))) / TARGET_ANGLE_DEG) * 2.0
+		targeting_weighting = targeting_weighting * angle_targeting
+
 		_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
 		get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
 		
@@ -250,8 +257,10 @@ func _keyboardInput(delta):
 	var accel
 	if (dir.dot(hvel) >0):
 		accel=ACCEL
+		get_node("AnimationTreePlayer").timescale_node_set_scale("scale",1.0)			
 	else:
 		accel=DEACCEL
+		get_node("AnimationTreePlayer").timescale_node_set_scale("scale",-1.0)					
 		
 	hvel = hvel.linear_interpolate(target,accel*delta)
 	
