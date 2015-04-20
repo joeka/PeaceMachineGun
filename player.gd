@@ -47,7 +47,7 @@ func _fixed_process(delta):
 		
 		if _time <= 0:
 			_replay = false
-			print("player replay finished") #TODO do something. End event?
+		
 	else:
 		_time += delta
 		_keyboardInput(delta)
