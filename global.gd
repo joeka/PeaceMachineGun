@@ -39,6 +39,8 @@ var _bullets = []
 var _sounds = []
 var _bullet_counter = 0
 
+var _gameover_screen = null
+
 func register_bullet( bullet ):
 	_bullets.push_back( bullet )
 func unregister_bullet( bullet ):
@@ -84,6 +86,8 @@ func replay():
 	_replay = true
 	if _current_scene and _current_scene.get_node("ReplayCamera"):
 		_current_scene.get_node("ReplayCamera").make_current()
+	var gameover_instance = _gameover_screen.instance()
+	get_viewport().get_camera().add_child(gameover_instance)
 	
 	for enemy in _enemies:
 		if enemy.get_node("ReviveTimer") != null:
@@ -154,6 +158,8 @@ func _ready():
 	var current_music = ResourceLoader.load (_music_r[_current_level_id])
 	_current_scene.get_node("StreamPlayer").set_stream (current_music)
 	_current_scene.get_node("StreamPlayer").play()
+	
+	_gameover_screen = ResourceLoader.load( "res://gameover.scn" )
 
 func _input(event):
 	if event.is_action("reload_scene"):
