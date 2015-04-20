@@ -56,7 +56,7 @@ func _fixed_process(delta):
 		move(get_global_transform().basis[2] * delta * speed)
 
 func player_collision():
-	if not _disabled:
+	if not _disabled and started:
 		var b1 = get_global_transform().basis[2]
 		var b2 = player.get_global_transform().basis[2]
 		var dot = b1.x*b2.x + b1.z*b2.z

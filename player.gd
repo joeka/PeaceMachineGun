@@ -161,7 +161,7 @@ func findClosestBulletLocation():
 		var min_dist = 9999
 		var min_origin = null
 		for bullet in bullets:
-			if bullet != null and (not bullet._disabled or bullet._replay):
+			if bullet != null and (not bullet._disabled or bullet._replay) and bullet.started:
 				var d = get_global_transform().origin.distance_to(bullet.get_global_transform().origin)
 				if d < min_dist:
 					min_dist = d
