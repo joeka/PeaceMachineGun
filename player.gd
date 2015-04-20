@@ -13,6 +13,7 @@ export(int) var ACCEL= 6
 export(int) var DEACCEL= 10
 const TARGET_OUTER_RADIUS = 6.0
 const TARGET_INNER_RADIUS = 4.0
+const TRIGGER_DISTANCE = 0.8
 
 var is_running = false
 var targeting_animation
@@ -29,12 +30,14 @@ var _started = false
 
 var _start_trigger = null
 
-var _has_gun = true
+var has_gun = true
 
 func pickup_gun():
-	if not _has_gun:
+	if not has_gun:
 		# pick it up! do it!
-		_has_gun = true
+		has_gun = true
+		get_node("GunMesh").show()
+		print ("Weapon picked up!")		
 
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
@@ -226,7 +229,8 @@ func _keyboardInput(delta):
 		elif _start_trigger != null:
 			var origin = get_global_transform().origin
 			var trigger = _start_trigger.get_global_transform().origin
-			if origin.distance_to( trigger ) < 0.2:
+			if origin.distance_to( trigger ) < TRIGGER_DISTANCE:
+				pickup_gun()
 				start()
 	
 	vel.y+=delta*g
