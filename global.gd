@@ -84,6 +84,12 @@ func replay():
 	_replay = true
 	if _current_scene and _current_scene.get_node("ReplayCamera"):
 		_current_scene.get_node("ReplayCamera").make_current()
+	
+	for enemy in _enemies:
+		if enemy.get_node("ReviveTimer") != null:
+			enemy.get_node("ReviveTimer").stop()
+		if enemy.get_node("BulletTimer") != null:
+			enemy.get_node("BulletTimer").stop()
 
 	for entry in _replay_first:
 		entry["node"].replay(replay_delay)
