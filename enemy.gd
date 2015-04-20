@@ -38,10 +38,10 @@ func replay( animation ):
 
 func _on_revive_start():
 	get_node("Model/SpatialSamplePlayer").play("schrei_1")
-	get_node("Model/AnimationPlayer").play("Death-cycle", -1, -1, true)
 	
 	get_node("/root/global").register_replay(self, "animation", "Death-cycle", \
 			get_node("Model/AnimationPlayer").get_current_animation_length())
+	get_node("Model/AnimationPlayer").play("Death-cycle", -1, -1, true)
 	
 	get_node("BulletTimer").start()
 
