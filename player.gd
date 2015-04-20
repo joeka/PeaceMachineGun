@@ -23,17 +23,24 @@ var _replay = false
 var _animation_record = []
 var _record = []
 
-func _record_animation_state():
-	pass
-func _record_animation_speed():
-	pass
+func _record_animation_state( animation, amount ):
+	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 
 func _fixed_process(delta):
 	if _replay:
 		_time -= delta
+		
+		# replay movement
 		while _record.size() > 0 and _record[_record.size() - 1]["time"] > _time:
 			set_transform(_record[_record.size() - 1]["transform"])
 			_record.remove(_record.size() - 1)
+		
+		# replay animations
+		while _animation_record.size() > 0 and _animation_record[_animation_record.size() - 1]["time"] > _time:
+			var ani = _animation_record[_animation_record.size() - 1]
+			get_node("AnimationTreePlayer").blend2_node_set_amount(ani["animation"], ani["amount"])
+			_animation_record.remove(_animation_record.size() - 1)
+		
 		if _time <= 0:
 			_replay = false
 			print("player replay finished") #TODO do something. End event?
@@ -91,7 +98,8 @@ func updateTargetAnimation(transform):
 		else:
 			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
 
-	print ("distance = ", distance, " weighting = ", targeting_weighting)
+	#print ("distance = ", distance, " weighting = ", targeting_weighting)
+	_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
 	get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
 	
 	pass
@@ -151,8 +159,10 @@ func _keyboardInput(delta):
 	
 	if (is_running and (vel.x * vel.x + vel.z * vel.z) < 0.1):
 		is_running = false
-		
+	
+	_record_animation_state("run", get_node("AnimationTreePlayer").blend2_node_get_amount("run"))
 	if (is_running):
+		
 		get_node("AnimationTreePlayer").blend2_node_set_amount("run",max(vel.length()/MAX_SPEED,1.0))
 	else:
 		get_node("AnimationTreePlayer").blend2_node_set_amount("run",0.0)
