@@ -14,6 +14,7 @@ var _replay = false
 export(int) var speed = 100
 
 func start():
+	set_layer_mask(1)
 	set_fixed_process(true)
 	get_node("SpatialSamplePlayer").play("flug_1")
 	global.register_sound(get_node("SpatialSamplePlayer"), "flug_1")
@@ -107,6 +108,7 @@ func _ready():
 	remove_child(trajectory)
 	trajectory.set_transform(get_transform())
 	get_parent().add_child(trajectory)
+	set_layer_mask(0)
 
 
 func _on_FreeTimer_timeout():
