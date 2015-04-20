@@ -7,6 +7,7 @@ var _current_path = null
 var _replay_first = []
 var _replay_events = []
 var _replay = false
+var stream_player = StreamPlayer.new()
 
 var _time = 0
 
@@ -16,6 +17,19 @@ var _levels = [
 		"res://title.scn",
 		"res://levels/level1.scn"
 		]
+var _music_r = [
+		"res://sounds/Level_0_r.ogg",
+		"res://sounds/Level_1_r.ogg",
+		"res://sounds/Level_2_r.ogg",
+		"res://sounds/Level_3_r.ogg",		
+		]
+var _music_n = [
+		"res://sounds/Level_0_n.ogg",
+		"res://sounds/Level_1_n.ogg",
+		"res://sounds/Level_2_n.ogg",
+		"res://sounds/Level_3_n.ogg",		
+		]
+
 var _credits_screen = "res://credits.scn"
 
 var _enemies = []
@@ -73,6 +87,11 @@ func replay():
 	for entry in _replay_first:
 		entry["node"].replay(replay_delay)
 	_replay_first = []
+	
+	# Play the music of the current level
+	var current_music = ResourceLoader.load (_music_n[_current_level_id])
+	_current_scene.get_node("StreamPlayer").set_stream (current_music)
+	_current_scene.get_node("StreamPlayer").play()
 
 func register_replay( node, type, opt1=null, opt2=null ):
 	if type == "player":
@@ -123,6 +142,11 @@ func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
 	reset_replay()
+	
+	# Play the music of the current level
+	var current_music = ResourceLoader.load (_music_r[_current_level_id])
+	_current_scene.get_node("StreamPlayer").set_stream (current_music)
+	_current_scene.get_node("StreamPlayer").play()
 
 func _input(event):
 	if event.is_action("reload_scene"):
@@ -138,6 +162,7 @@ func goto_scene( path ):
 	_enemies = []
 	_bullet_counter = 0
 	_current_path = path
+	
 	call_deferred( "_deferred_goto_scene", path )
 
 func next_scene():
@@ -152,3 +177,8 @@ func _deferred_goto_scene( path ):
 	var s = ResourceLoader.load( path )
 	_current_scene = s.instance()
 	get_tree().get_root().add_child(_current_scene)
+	
+	# Play the music of the current level
+	var current_music = ResourceLoader.load (_music_r[_current_level_id])
+	_current_scene.get_node("StreamPlayer").set_stream (current_music)
+	_current_scene.get_node("StreamPlayer").play()
