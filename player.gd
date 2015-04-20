@@ -24,6 +24,9 @@ var _replay = false
 var _animation_record = []
 var _record = []
 
+func bullet_alert( bullet ):
+	pass
+
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 

@@ -10,6 +10,7 @@ var _disabled = false
 var _start_pos = null
 var _replay = false
 
+
 export(int) var speed = 100
 
 func _fixed_process(delta):
@@ -32,6 +33,15 @@ func _fixed_process(delta):
 		
 		move(get_global_transform().basis[2] * delta * speed * -1)
 	else:
+		# Alert player about bullets close to him
+		var origin = get_global_transform().origin
+		var player_origin = player.get_global_transform().origin
+		if( origin.distance_to( player_origin ) ) < player.TARGET_OUTER_RADIUS:
+			player.bullet_alert( self )
+		else:
+			#print(get_global_transform().origin.distance_to( player.get_global_transform().origin ) )
+			print(player.get_global_transform().origin.x, " " , player.get_global_transform().origin.y, " ", player.get_global_transform().origin.z )
+			
 		var origin = get_global_transform().origin
 		for mesh in trajectory.get_children():
 			if mesh.get_global_transform().origin.distance_to(origin) < 0.1:
@@ -81,9 +91,10 @@ func _destroy():
 
 func _ready():
 	global = get_node("/root/global")
-	player = get_node("../Player")
+	player = get_node("../Player/Body")
 	if player == null:
-		player = get_node("../../Player")
+		player = get_node("../../Player/Body")
+		
 	set_fixed_process(true)
 	trajectory = get_node("Trajectory")
 	trajectory.hide()
