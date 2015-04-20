@@ -27,6 +27,8 @@ var closest_bullet_location = Vector3()
 
 var _started = false
 
+var _start_trigger = null
+
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 
@@ -184,6 +186,10 @@ func _ready():
 #	get_node("AnimationTreePlayer").set_active(false)
 	
 	initTargetAnimation()
+	
+	_start_trigger = get_node("../StartTrigger")
+	if _start_trigger == null:
+		_start_trigger = get_node("../../StartTrigger")
 
 func start():
 	if not _started:
@@ -208,10 +214,13 @@ func _keyboardInput(delta):
 	dir = dir.normalized()
 	
 	if not _started:
-		if (get_node("/root/global").get_current_level_id() > 0 and dir.length() != 0) or\
-				(get_node("/root/global").get_current_level_id() == 0 and get_node("../StartTrigger") != null and \
-				get_global_transform().origin.distance_to( get_node("../StartTrigger").get_global_transform().origin ) < 0.2):
+		if _start_trigger == null and dir.length() != 0:
 			start()
+		elif _start_trigger != null:
+			var origin = get_global_transform().origin
+			var trigger = _start_trigger.get_global_transform().origin
+			if origin.distance_to( trigger ) < 0.2:
+				start()
 	
 	vel.y+=delta*g
 	
