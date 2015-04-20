@@ -25,11 +25,6 @@ var _animation_record = []
 var _record = []
 var closest_bullet_location = Vector3()
 
-func bullet_alert( bullet ):
-	#if (get_global_transform().origin - bullet.get_global_transform().origin)
-	pass
-	
-
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 
@@ -50,7 +45,7 @@ func _fixed_process(delta):
 		
 		if _time <= 0:
 			_replay = false
-			print("player replay finished") #TODO do something. End event?
+		
 	else:
 		_time += delta
 		_keyboardInput(delta)

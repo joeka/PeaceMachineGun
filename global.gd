@@ -2,7 +2,7 @@ extends Node
 
 var _current_scene = null
 var _current_level_id = -1
-var _current_path = null
+var _current_path = "res://levels/level1.scn"
 var _showing_level_screen = false
 
 var _replay_first = []
@@ -12,11 +12,28 @@ var _replay = false
 var _time = 0
 
 var _levels = [
-		"res://levels/testlevel.scn"
+		"res://levels/level1.scn"
 		]
 var _level_screen = "res://level.scn"
 var _game_over_screen = "res://gameover.scn"
 var _credits_screen = "res://credits.scn"
+
+var _bullets = []
+var _bullet_counter = 0
+
+func register_bullet( bullet ):
+	_bullets.push_back( bullet )
+func get_bullets():
+	return _bullets
+
+func bullet_caught( bullet ):
+	_bullet_counter += 1
+	if _bullet_counter == _bullets.size():
+		next_scene() #TODO something fancier
+	else:
+		#TODO talk to the player and stuff
+		print("try to get all bullets")
+		reload_scene()
 
 func reset_replay():
 	_replay_events = []
@@ -29,6 +46,7 @@ func replay():
 	_replay = true
 	for entry in _replay_first:
 		entry["node"].replay()
+	_replay_first = []
 
 func register_replay( node, type, opt1=null, opt2=null ):
 	if type == "player":
@@ -53,7 +71,8 @@ func _fixed_process( delta ):
 			_replay_events.remove(_replay_events.size() - 1)
 		if _time <= 0:
 			_replay = false
-			print("replay finished") #TODO do something. End event?
+			#TODO do something. End event?
+			reload_scene()
 	else:
 		_time += delta
 
@@ -66,8 +85,7 @@ func _ready():
 
 func _input(event):
 	if event.is_action("reload_scene"):
-		#reload_scene()
-		replay()
+		reload_scene()
 
 func reload_scene():
 	if _current_path != null:
@@ -75,6 +93,8 @@ func reload_scene():
 
 func goto_scene( path ):
 	reset_replay()
+	_bullets = []
+	_bullet_counter = 0
 	_current_path = path
 	call_deferred( "_deferred_goto_scene", path )
 

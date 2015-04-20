@@ -13,8 +13,15 @@ var _replay = false
 
 export(int) var speed = 100
 
+func start():
+	set_fixed_process(true)
+
+func is_active():
+	return started
+
 func _fixed_process(delta):
 	if not started:
+		show()
 		trajectory.set_rotation(get_rotation())
 		trajectory.show()
 		_start_pos = get_global_transform().origin
@@ -33,15 +40,6 @@ func _fixed_process(delta):
 		
 		move(get_global_transform().basis[2] * delta * speed * -1)
 	else:
-		# Alert player about bullets close to him
-		var origin = get_global_transform().origin
-		var player_origin = player.get_global_transform().origin
-		if( origin.distance_to( player_origin ) ) < player.TARGET_OUTER_RADIUS:
-			player.bullet_alert( self )
-		else:
-			#print(get_global_transform().origin.distance_to( player.get_global_transform().origin ) )
-			print(player.get_global_transform().origin.x, " " , player.get_global_transform().origin.y, " ", player.get_global_transform().origin.z )
-			
 		var origin = get_global_transform().origin
 		for mesh in trajectory.get_children():
 			if mesh.get_global_transform().origin.distance_to(origin) < 0.1:
@@ -52,7 +50,8 @@ func _fixed_process(delta):
 			if node == player:
 				player_collision()
 			else:
-				print("bullet lost") #TODO: do something else
+				#TODO: more stuff?
+				global.replay()
 				disable()
 		move(get_global_transform().basis[2] * delta * speed)
 
@@ -61,10 +60,12 @@ func player_collision():
 		var b1 = get_global_transform().basis[2]
 		var b2 = player.get_global_transform().basis[2]
 		var dot = b1.x*b2.x + b1.z*b2.z
-		if dot > 0.1 - precision:
-			print("bullet caught")  #TODO: do something else
+		if dot < 0.1 + precision:
+			global.bullet_caught(self)
 		else:
-			print("hit by bullet")  #TODO: do something else
+			print(dot)
+			#TODO cooler stuff
+			global.replay()
 		disable()
 
 func replay():
@@ -95,7 +96,7 @@ func _ready():
 	if player == null:
 		player = get_node("../../Player/Body")
 		
-	set_fixed_process(true)
+	hide()
 	trajectory = get_node("Trajectory")
 	trajectory.hide()
 	remove_child(trajectory)
