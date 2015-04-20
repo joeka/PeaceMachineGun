@@ -207,8 +207,11 @@ func _keyboardInput(delta):
 	dir.y = 0
 	dir = dir.normalized()
 	
-	if not _started and get_node("/root/global").get_current_level_id() > -1 and dir.length() != 0:
-		start()
+	if not _started:
+		if (get_node("/root/global").get_current_level_id() > 0 and dir.length() != 0) or\
+				(get_node("/root/global").get_current_level_id() == 0 and get_node("../StartTrigger") != null and \
+				get_global_transform().origin.distance_to( get_node("../StartTrigger").get_global_transform().origin ) < 0.2):
+			start()
 	
 	vel.y+=delta*g
 	

@@ -1,9 +1,12 @@
 extends Spatial
 
 func _ready():
-	var timer = get_node("Timer")
-	if timer != null:
-		timer.connect("timeout", self, "_on_revive_start")
+	var revive_timer = get_node("ReviveTimer")
+	if revive_timer != null:
+		revive_timer.connect("timeout", self, "_on_revive_start")
+	var bullet_timer = get_node("BulletTimer")
+	if bullet_timer != null:
+		bullet_timer.connect("timeout", self, "_bullet_impact")
 	
 	var ani = get_node("Model/AnimationPlayer")
 	ani.play("Death-cycle", -1, 1, false)
@@ -26,7 +29,7 @@ func _ready():
 	get_node("/root/global").register_enemy( self )
 
 func start():
-	var timer = get_node("Timer")
+	var timer = get_node("ReviveTimer")
 	if timer != null:
 		timer.start()
 
@@ -40,6 +43,7 @@ func _on_revive_start():
 	get_node("/root/global").register_replay(self, "animation", "Death-cycle", \
 			get_node("Model/AnimationPlayer").get_current_animation_length())
 	
+	get_node("BulletTimer").start()
+
+func _bullet_impact():
 	get_node("Bullet").start()
-	
-	
