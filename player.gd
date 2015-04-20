@@ -29,6 +29,13 @@ var _started = false
 
 var _start_trigger = null
 
+var _has_gun = true
+
+func pickup_gun():
+	if not _has_gun:
+		# pick it up! do it!
+		_has_gun = true
+
 func _record_animation_state( animation, amount ):
 	_animation_record.push_back({ "time": _time, "animation": animation, "amount": amount })
 
