@@ -1,6 +1,6 @@
 extends KinematicBody
 
-export var precision = 0.01
+export var catch_angle = 10
 var player = null
 var global = null
 var trajectory = null
@@ -61,9 +61,8 @@ func player_collision():
 	if not _disabled and started:
 		var b1 = get_global_transform().basis[2]
 		var b2 = player.get_global_transform().basis[2]
-		var dot = b1.x*b2.x + b1.z*b2.z
-		print (abs(dot))
-		if dot < 0.1 + precision:
+		var angle = rad2deg(acos( b1.dot(b2) / ( b1.length() * b2.length() )))
+		if abs(180 - abs(angle)) < catch_angle:
 			get_node("SpatialSamplePlayer").play("Schuss_1_r")
 			global.register_sound(get_node("SpatialSamplePlayer"), "Schuss_1_n")
 			global.bullet_caught(self)
