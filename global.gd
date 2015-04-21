@@ -143,7 +143,7 @@ func _fixed_process( delta ):
 		
 		while _sounds.size() > 0 and _sounds[_sounds.size() - 1]["time"] > _time:
 			var entry = _sounds[_sounds.size() - 1]
-			if entry["source"]:
+			if entry["source"] == null:
 				entry["source"].play(entry["sound"])
 			_sounds.remove(_sounds.size() - 1)
 		
