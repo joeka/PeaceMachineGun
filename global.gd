@@ -190,6 +190,8 @@ func _input(event):
 		skip_guard = true
 		print ("Skipping level ", _current_level_id)
 		next_scene()
+	elif event.is_action ("trigger_replay"):
+		replay()		
 	elif not event.is_action("skip_level"):
 		skip_guard = false
 
