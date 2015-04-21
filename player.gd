@@ -256,8 +256,9 @@ func _ready():
 func start():
 	if not _started:
 		_started = true
-		get_node("/root/global").register_replay(self, "player")
+		# Order of start and register_replay is important
 		get_node("/root/global").start()
+		get_node("/root/global").register_replay(self, "player")
 
 func _keyboardInput(delta):
 	var dir = Vector3(0,0,0)

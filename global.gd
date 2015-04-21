@@ -68,7 +68,7 @@ func get_current_level_id():
 	return _current_level_id
 
 func start():
-	_time = 0
+	reset_replay()
 	for enemy in _enemies:
 		enemy.start()
 
@@ -90,6 +90,7 @@ func timed_next_scene():
 func reset_replay():
 	_replay_first = []
 	_replay_events = []
+	_sounds = []
 	_time = 0
 	
 func get_current_level():
@@ -146,8 +147,7 @@ func _fixed_process( delta ):
 		
 		while _sounds.size() > 0 and _sounds[_sounds.size() - 1]["time"] > _time:
 			var entry = _sounds[_sounds.size() - 1]
-			if entry["source"] != null:
-				entry["source"].play(entry["sound"])
+			entry["source"].play(entry["sound"])	
 			_sounds.remove(_sounds.size() - 1)
 		
 		if _time <= 0:
