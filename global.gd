@@ -16,6 +16,7 @@ var _levels = [
 		"res://title.scn",
 		"res://levels/level1.scn",
 		"res://levels/level2.scn",
+		"res://levels/level3.scn",
 		"res://levels/endlevel.scn",
 		]
 		
@@ -23,13 +24,15 @@ var _music_r = [
 		"res://sounds/Level_0_r.ogg",
 		"res://sounds/Level_1_r.ogg",
 		"res://sounds/Level_2_r.ogg",
-		"res://sounds/Level_1_n.ogg",
+		"res://sounds/Level_3_r.ogg",
+		"res://sounds/Level_3_r.ogg",
 		]
 var _music_n = [
 		"res://sounds/Level_0_n.ogg",
 		"res://sounds/Level_1_n.ogg",
 		"res://sounds/Level_2_n.ogg",
-		"res://sounds/Level_1_n.ogg",
+		"res://sounds/Level_3_n.ogg",
+		"res://sounds/Level_3_r.ogg",
 		]
 
 var _enemies = []
