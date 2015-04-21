@@ -108,7 +108,7 @@ func _fixed_process(delta):
 		_keyboardInput(delta)
 		_record.push_back({ "time": _time, "transform": get_transform() })
 
-	updateTargetAnimation(Transform())
+	updateTargetAnimation(Transform(), delta)
 	
 	if has_gun:
 		updateGunPosition()
@@ -158,10 +158,14 @@ func resetTargetingAnimation():
 
 	pass
 
-func updateTargetAnimation(transform):
+func updateTargetAnimation(transform, delta):
 	var bullet_location = findClosestBulletLocation()
 	
 	if bullet_location == null:
+		var targeting_weighting = get_node("AnimationTreePlayer").blend2_node_get_amount("targeting")
+		if targeting_weighting > 0:
+			_record_animation_state("targeting", targeting_weighting)
+			get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", max(0, targeting_weighting - delta))
 		return
 	
 	# find the right shoulder
@@ -200,15 +204,6 @@ func updateTargetAnimation(transform):
 			targeting_weighting = 1.0
 		else:
 			targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
-	
-		# compute weighting of the targeting
-		var distance = (bullet_location - shoulder_location).length()
-		var targeting_weighting = 0.0
-		if distance < TARGET_OUTER_RADIUS:
-			if distance < TARGET_INNER_RADIUS:
-				targeting_weighting = 1.0
-			else:
-				targeting_weighting = (TARGET_OUTER_RADIUS - distance)/ (TARGET_OUTER_RADIUS - TARGET_INNER_RADIUS) 
 		
 		# angle targeting: depending on the angle we lift the arm
 		var angle_targeting = max (0.0, (TARGET_ANGLE_DEG * 0.5 - rad2deg(abs(angle))) / TARGET_ANGLE_DEG) * 2.0
@@ -216,7 +211,6 @@ func updateTargetAnimation(transform):
 
 		_record_animation_state("targeting", get_node("AnimationTreePlayer").blend2_node_get_amount("targeting"))
 		get_node("AnimationTreePlayer").blend2_node_set_amount("targeting", targeting_weighting)
-		
 
 func findClosestBulletLocation():
 	var bullets = get_node("/root/global").get_bullets()
