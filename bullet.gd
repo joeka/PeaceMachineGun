@@ -1,6 +1,6 @@
 extends KinematicBody
 
-export var catch_angle = 20
+export var catch_angle = 45 
 var player = null
 var global = null
 var trajectory = null
